@@ -1,0 +1,15 @@
+# Ignora todos los archivos que terminen en .swp
+*.swp
+
+# Ignora la carpeta node_modules
+node_modules/
+
+# Ignora archivos temporales de edición
+*.tmp
+*.bak
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
