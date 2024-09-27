@@ -3,6 +3,10 @@ from ...database import get_db
 import aiomysql
 from typing import List
 from authlib.integrations.starlette_client import OAuth
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Carga las variables de entorno desde .env
 
 router = APIRouter()
 
@@ -11,8 +15,8 @@ router = APIRouter()
 oauth = OAuth()
 oauth.register(
     name='google',
-    client_id='859314345775-ne6gm0veepa4ntsajkpgm6qaga17e29j.apps.googleusercontent.com',
-    client_secret='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',
+    client_id=os.environ.get('GOOGLE_ID'),
+    client_secret=os.environ.get('GOOGLE_SECRET'),
     authorize_url='https://accounts.google.com/o/oauth2/auth',
     authorize_params=None,
     access_token_url='https://accounts.google.com/o/oauth2/token',

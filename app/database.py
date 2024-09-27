@@ -1,7 +1,7 @@
 import aiomysql
 from dotenv import load_dotenv
 import os
-
+ 
 load_dotenv()  # Carga las variables de entorno desde .env
 
 async def get_db():
