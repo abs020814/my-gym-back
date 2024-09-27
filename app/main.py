@@ -8,6 +8,10 @@ from authlib.integrations.starlette_client import OAuth
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Carga las variables de entorno desde .env
 
 from fastapi import FastAPI
 from .api import api_router
