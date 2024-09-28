@@ -8,3 +8,4 @@ starlette==0.38.1
 uvicorn==0.31.0
 gunicorn
 httpx
+itsdangerous
