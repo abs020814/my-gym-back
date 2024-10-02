@@ -9,7 +9,7 @@ from typing import List
 router = APIRouter()
 
 def row_to_entrenador(row):
-    (idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr,clientesEntr ) = row
+    (idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr,clientesEntr ) = row
 
     clientesEntr_list = []
     if clientesEntr:
@@ -22,7 +22,9 @@ def row_to_entrenador(row):
         "idEntr": idEntr,
         "emailEntr": emailEntr,
         "nombreEntr": nombreEntr,
-        "datosEntr": datosEntr,
+        "estudiosEntr": estudiosEntr,
+        "tarifasEntr": tarifasEntr,
+        "ubicacionEntr": ubicacionEntr,
         "fechaAltaEntr": fechaAltaEntr,
         "especEntr": especEntr,
         "clientesEntr": clientesEntr_list,
@@ -32,7 +34,7 @@ def row_to_entrenador(row):
 async def get_entrenadores(db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
 
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores")
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores")
         data = await cursor.fetchall()
 
         response = []
@@ -44,10 +46,10 @@ async def get_entrenadores(db: aiomysql.Connection = Depends(get_db)):
 @router.post("/", response_model=Entrenador)
 async def create_entr(entrenador: EntrenadorBase, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("INSERT INTO entrenadores (nombreEntr,datosEntr,especEntr, emailEntr) VALUES (%s,%s,%s,%s)",
-                             (entrenador.nombreEntr, entrenador.datosEntr, entrenador.especEntr, entrenador.emailEntr))
+        await cursor.execute("INSERT INTO entrenadores (nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,especEntr, emailEntr) VALUES (%s,%s,%s,%s,%s,%s)",
+                             (entrenador.nombreEntr, entrenador.estudiosEntr,entrenador.tarifasEntr,entrenador.ubicacionEntr, entrenador.especEntr, entrenador.emailEntr))
         await db.commit()
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = LAST_INSERT_ID()")
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = LAST_INSERT_ID()")
         result = await cursor.fetchone()
         return row_to_entrenador(result)
         #return [row_to_entrenador(row) for row in data] 
@@ -55,10 +57,10 @@ async def create_entr(entrenador: EntrenadorBase, db: aiomysql.Connection = Depe
 @router.put("/", response_model=Entrenador)
 async def modifi_entr(entrenador: Entrenador, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("UPDATE entrenadores SET nombreEntr=%s,datosEntr=%s,especEntr=%s WHERE idEntr=%s",
-                             (entrenador.nombreEntr, entrenador.datosEntr, entrenador.especEntr, entrenador.idEntr))
+        await cursor.execute("UPDATE entrenadores SET nombreEntr=%s,estudiosEntr=%s,tarifasEntr=%s,ubicacionEntr=%s,especEntr=%s WHERE idEntr=%s",
+                             (entrenador.nombreEntr, entrenador.estudiosEntr,entrenador.tarifasEntr,entrenador.ubicacionEntr, entrenador.especEntr, entrenador.idEntr))
         await db.commit()
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s",entrenador.idEntr)
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s",entrenador.idEntr)
         result = await cursor.fetchone()
         return row_to_entrenador(result)
         #return [row_to_entrenador(row) for row in data] 
@@ -66,7 +68,7 @@ async def modifi_entr(entrenador: Entrenador, db: aiomysql.Connection = Depends(
 @router.get("/idEntr/{idEntr}", response_model=Entrenador)
 async def get_entr_por_id(idEntr: int, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s", (idEntr,))
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s", (idEntr,))
         result = await cursor.fetchone()
         if result is None:
             raise HTTPException(status_code=404, detail="Entrenador not found")
@@ -75,7 +77,7 @@ async def get_entr_por_id(idEntr: int, db: aiomysql.Connection = Depends(get_db)
 @router.get("/emailEntr", response_model=Entrenador)
 async def get_entr_por_email(emailEntr: str, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE emailEntr = %s", (emailEntr,))
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE emailEntr = %s", (emailEntr,))
         result = await cursor.fetchone()
         if result is None:
             raise HTTPException(status_code=404, detail="Entrenador not found")
@@ -85,7 +87,7 @@ async def get_entr_por_email(emailEntr: str, db: aiomysql.Connection = Depends(g
 async def delete_entr(idEntr: int, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
         info(idEntr)
-        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,datosEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s", (idEntr,))
+        await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores WHERE idEntr = %s", (idEntr,))
         result = await cursor.fetchone()
         if result is None:
             raise HTTPException(status_code=404, detail="Entrenador not found")

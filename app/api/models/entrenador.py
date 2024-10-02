@@ -4,7 +4,9 @@ from pydantic import BaseModel
 
 class EntrenadorBase(BaseModel):
     nombreEntr: str
-    datosEntr: str
+    estudiosEntr: str
+    tarifasEntr: str
+    ubicacionEntr: str
     especEntr: str
     emailEntr: str    
 
