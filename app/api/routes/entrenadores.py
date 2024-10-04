@@ -36,7 +36,7 @@ async def get_entrenadores(db: aiomysql.Connection = Depends(get_db)):
 
         await cursor.execute("SELECT idEntr,emailEntr,nombreEntr,estudiosEntr,tarifasEntr,ubicacionEntr,fechaAltaEntr,especEntr, clientesEntr FROM vw_entrenadores")
         data = await cursor.fetchall()
-
+    
         response = []
         for row in data:
             response.append(row_to_entrenador(row))
