@@ -9,14 +9,15 @@ from typing import List
 router = APIRouter()
 
 def row_to_rutina(row):
-    (idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti ) = row
+    (idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti ) = row
 
     return Rutina(**{
         "idRuti": idRuti,
         "descrRuti": descrRuti,
         "fechaAltaRuti": fechaAltaRuti,
         "idEntrRuti": idEntrRuti,
-        "diaLbrazosRuti": diaLbrazosRuti
+        "diasBrazosRuti": diasBrazosRuti,
+        "diasTroncoRuti": diasTroncoRuti
     })
 
 @router.get("/all", response_model=List[Rutina])
@@ -24,7 +25,7 @@ async def get_rutinas(db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
         logging.info("en rutinas all---")
 
-        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti FROM rutinas")
+        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti FROM rutinas")
         data = await cursor.fetchall()
 
         response = []
@@ -36,10 +37,11 @@ async def get_rutinas(db: aiomysql.Connection = Depends(get_db)):
 @router.post("/", response_model=Rutina)
 async def create_post(rutina: RutinaBase, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("INSERT INTO rutinas (descrRuti,idEntrRuti,diaLbrazosRuti) VALUES (%s,%s,%s)",
-                             (rutina.descrRuti, rutina.idEntrRuti, rutina.diaLbrazosRuti))
+        logging.info("rutina a grabar: ",rutina)
+        await cursor.execute("INSERT INTO rutinas (descrRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti) VALUES (%s,%s,%s,%s)",
+                             (rutina.descrRuti, rutina.idEntrRuti, rutina.diasBrazosRuti, rutina.diasTroncoRuti))
         await db.commit()
-        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti FROM rutinas WHERE idRuti = LAST_INSERT_ID()")
+        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti FROM rutinas WHERE idRuti = LAST_INSERT_ID()")
         result = await cursor.fetchone()
         return row_to_rutina(result)
         #return [row_to_entrenador(row) for row in data] 
@@ -47,7 +49,7 @@ async def create_post(rutina: RutinaBase, db: aiomysql.Connection = Depends(get_
 @router.get("/idEntrRuti/{idEntrRuti}", response_model=List[Rutina])
 async def get_ruti_por_idEntr(idEntrRuti: int, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti FROM rutinas WHERE idEntrRuti = %s", (idEntrRuti,))
+        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti FROM rutinas WHERE idEntrRuti = %s", (idEntrRuti,))
         result = await cursor.fetchall()
         if result is None:
             raise HTTPException(status_code=404, detail="Rutina not found")
@@ -59,7 +61,7 @@ async def get_ruti_por_idEntr(idEntrRuti: int, db: aiomysql.Connection = Depends
 @router.get("/idRuti/{idRuti}", response_model=Rutina)
 async def get_ruti_por_idEntr(idRuti: int, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
-        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti FROM rutinas WHERE idRuti = %s", (idRuti,))
+        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti FROM rutinas WHERE idRuti = %s", (idRuti,))
         result = await cursor.fetchone()
         if result is None:
             raise HTTPException(status_code=404, detail="Rutina not found")
@@ -70,7 +72,7 @@ async def get_ruti_por_idEntr(idRuti: int, db: aiomysql.Connection = Depends(get
 async def delete_post(idRuti: int, db: aiomysql.Connection = Depends(get_db)):
     async with db.cursor() as cursor:
         
-        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diaLbrazosRuti FROM rutinas WHERE idRuti = %s", (idRuti,))
+        await cursor.execute("SELECT idRuti,descrRuti,fechaAltaRuti,idEntrRuti,diasBrazosRuti,diasTroncoRuti FROM rutinas WHERE idRuti = %s", (idRuti,))
         result = await cursor.fetchone()
         if result is None:
             raise HTTPException(status_code=404, detail="Rutina not found")
